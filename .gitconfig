@@ -1,3 +1,25 @@
 [user]
+	email = tim@tkeith.com
 	name = Tim Keith
-	email = tsk@us.ibm.com
+[push]
+	default = simple
+[core]
+	autocrlf = input
+[credential]
+	helper = store --file=~/.git-credentials
+[alias]
+	# %h = abbreviated hash; %d = ref names???; %s = subject
+	hist  = log --color --graph --pretty=format:'%Cred%h%Creset -%C(magenta)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' 
+	hist2 = log --color --graph --pretty=format:'%Cred%h%Creset -%C(magenta)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --simplify-by-decoration
+
+[color "diff"]
+	meta = blue
+	# 'slots' that can be specified here:
+	#plain (context text)
+	#meta (metainformation)
+	#frag (hunk header)
+	#func (function in hunk header)
+	#old (removed lines)
+	#new (added lines)
+	#commit (commit headers)
+	#whitespace (highlighting whitespace errors)
