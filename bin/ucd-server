@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+docker run -p 8080:8080 -p 7918:7918 ucd

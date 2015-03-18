@@ -1,0 +1,41 @@
+#!/usr/bin/perl
+use strict; use warnings; # vim:ft=perl ff=unix:
+sub get_run_args();
+
+# Run the latest docker image with the arguments of this fix.
+# If the first arg is 'bash', include '-it' in the run command.
+
+my $images = `docker images 2>&1`;
+$? == 0 or die "Output from 'docker images':\n$images\n'docker images' failed\n";
+
+$images =~ /^(REPOSITORY.*)\n(.*)\n/
+    or die "No images found in output of 'docker images':\n$images";
+my($header, $image) = ($1, $2);
+
+my @latest = split(/  +/, $image);
+my $id = $latest[2];
+print "$header\n$image\n";
+
+my @cmd = ('docker', 'run');
+push(@cmd, '-it') if @ARGV > 0 && $ARGV[0] eq 'bash';
+
+# divide args into those that go before and after image id
+push(@cmd, get_run_args());
+push(@cmd, $id, @ARGV);
+print "@cmd\n";
+exec @cmd;
+die "Exec failed on: @cmd";
+
+# Find args in ARGV that apply to run (and go before image id); remove and return them.
+sub get_run_args() {
+    my @result = ();
+    for (my $i = 0; $i <= $#ARGV; ) {
+        my $arg = $ARGV[$i];
+        if ($arg eq '-e' || $arg eq '-p') {
+            push(@result, splice(@ARGV, $i, 2));
+        } else {
+            $i += 1;
+        }
+    }
+    return @result;
+}

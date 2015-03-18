@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+docker run \
+  -e IBM_ACCEPTED_LICENSES=ibm-java7-jre,ibm-ucd-agent \
+  -e IBM_UCD_REMOTE_HOST=172.28.128.3 \
+  -e IBM_UCD_AGENT_NAME=test-agent \
+  ucdagent

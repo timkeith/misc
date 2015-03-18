@@ -1,0 +1,5 @@
+#!/bin/bash
+#docker ps -q | xargs docker inspect --format '{{.NetworkSettings.IPAddress}}  {{.Name}}' | sed 's=  /=  ='
+#docker ps -q | xargs docker inspect --format '{{.NetworkSettings.IPAddress}}  {{.Config.Hostname}}'
+docker ps -q | xargs docker inspect --format '{{.NetworkSettings.IPAddress}} {{.Config.Hostname}}' \
+ | awk 'BEGIN { printf "%-16s %s\n", "IPAddress", "Hostname" } { printf "%-16s %s\n", $1, $2}'

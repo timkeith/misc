@@ -1,0 +1,47 @@
+#!/usr/bin/env perl
+# vim:ft=perl:
+use Cwd ();
+use File::Basename qw(basename);
+
+@ARGV > 2 and die "Usage: $0 [<dir>]\n";
+my $dir = Cwd::abs_path(shift(@ARGV) || '.');
+my $tag = basename($dir);
+
+my $nsteps = 0;
+my $step = '';
+open(my $fh, '-|', "docker build -t $tag $dir 2>&1") or die "Failed to start docker build: $!\n";
+while (<$fh>) {
+    next if /^Sending build context/;
+    if (/^Step /) {
+        #print "step: $_";
+        do_step($step);
+        $step = '';
+    }
+    $step .= $_;
+}
+$step =~ s/^(Successfully built) .*/$1 $tag/m;
+do_step($step);
+$nsteps == 0 and print "$tag is up to date\n";
+exit;
+
+sub do_step() {
+    my($step) = @_;
+    return unless $step;
+    return if $step =~ / ---> Using cache/;  # not interesting
+    return if $step =~ /Step 0 : FROM /;
+    $step =~ s/^ ---> .*\n//gm;
+    $step =~ s/^Removing intermediate container.*\n//m;
+    print $step;
+    $nsteps += 1;
+}
+
+#Step 18 : COPY fig.yml /info/
+# ---> Using cache
+# ---> 0d0fdc017f1c
+#Step 19 : COPY README.md /info/
+# ---> 47689fb047af
+#Removing intermediate container 027e04825e58
+#Step 20 : WORKDIR /opt/urbancode/ibm-ucdagent
+# ---> Running in 55976e9d6120
+# ---> b9945e0874c8
+
