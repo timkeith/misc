@@ -5,6 +5,7 @@
 	default = simple
 [core]
 	autocrlf = input
+	editor = vim
 [credential]
 	helper = store --file=~/.git-credentials
 [alias]
