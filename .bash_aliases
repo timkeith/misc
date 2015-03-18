@@ -47,6 +47,5 @@ $brown\$myPWD\$$reset "
 
 TERM=cygwin
 CDPATH=.:/vagrant/git:~/b
-#LESS='-e -M -X'
 
-#PATH=$PATH:~/bin
+PATH=~/bin:$PATH
