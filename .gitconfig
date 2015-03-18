@@ -7,7 +7,7 @@
 	autocrlf = input
 	editor = vim
 [credential]
-	helper = /home/vagrant/.git-credentials
+	helper = store --file=/home/vagrant/.git-credentials
 [alias]
 	# %h = abbreviated hash; %d = ref names???; %s = subject
 	hist  = log --color --graph --pretty=format:'%Cred%h%Creset -%C(magenta)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' 
