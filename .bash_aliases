@@ -6,11 +6,8 @@ alias lt='ls -lAFt'
 unalias grep 2> /dev/null
 alias g=grep
 alias c=cd
-alias p=pushd
-alias p2='pushd +2'
-alias p3='pushd +3'
-alias p4='pushd +4'
-alias pp=popd
+alias p='. ~/bin/pushd.sh'
+alias pp='popd > /dev/null; d'
 alias d='dirs | dirs.pl'
 alias h='history | tail -20'
 alias ghist='history | grep'
