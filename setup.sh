@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# First do: git clone https://github.com/timkeith/misc.git
+# Then run setup.sh
 cd $(dirname $0)
 dir=$(basename $(pwd))
 for x in * .*; do
