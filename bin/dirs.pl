@@ -1,6 +1,10 @@
 #!/usr/bin/env perl
+use strict;
+use warnings;
+
 # pipe dirs thru this
-my @x = split(' ', <>);
-for (my $i = $#x; $i > 0; $i--) {
-  printf "%d  %s\n", $i, $x[$i];
+local $/ = undef;
+my @x = split('\n', <>);
+for (my $i = $#x; $i >= 0; $i--) {
+  print $x[$i], "\n";
 }

@@ -1,0 +1,46 @@
+#!/usr/bin/env perl
+# vim:ft=perl:
+
+use strict;
+use warnings;
+use File::Spec::Functions qw(catfile catdir);
+use File::Basename qw(basename);
+use lib File::Basename::dirname __FILE__;
+use lib catfile($ENV{ROOT}, 'bin');
+use Misc qw(dirname assert note warning error fatal internal);
+sub fix_quotes($);
+$| = 1;
+my $OPT = Misc::getopt(
+    {args => '1-2'},
+    '<cson-file> [<json-file>]
+Convert CSON file to <json-file> or stdout',
+);
+my($infile, $outfile) = @ARGV;
+my $cson = Misc::get($infile);
+$cson =~ s/^/  /gm;
+$cson = "x =\n$cson";
+my $coffee = Misc::gettemp('', 'coffee');
+Misc::put($coffee, $cson);
+system("coffee --bare --compile $coffee");
+unlink($coffee);
+my $js = Misc::subst($coffee, '\.coffee$' => '.js');
+my $json = Misc::get($js);
+unlink($js);
+$json =~ s/.*x = ({\n.*\n});.*/$1\n/s;
+$json =~ s/^( *)(\w+):/$1"$2":/gm;
+$json =~ s/^( *)'([^']*)':/$1"$2":/gm;
+$json =~ s/'([^']*)'/fix_quotes($1)/ge;
+
+if ($outfile) {
+    Misc::put($outfile, $json);
+} else {
+    print $json;
+}
+
+exit;
+
+sub fix_quotes($) {
+    my($x) = @_;
+    $x =~ s/"/\\"/g;
+    return "\"$x\"";
+}

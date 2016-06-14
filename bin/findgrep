@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+if [[ $# < 2  || $1 = '--help' ]]; then
+    echo "Usage: $0 <pat> <fileglob> [<dir>]"
+    exit 0
+fi
+pat=$1
+glob=$2
+dir=${3-.}
+case $glob in
+    \.*) glob="*$glob" ;;
+esac
+if [[ $pat =~ .*[A-Z].* ]]; then
+    iflag=
+else
+    iflag=-i
+fi
+find $dir -name "$glob" -print | xargs grep $iflag "$pat"

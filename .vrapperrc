@@ -1,0 +1,9 @@
+" reverse meaning of v and V, except when followed by certain motions
+nnoremap v V
+nnoremap V v
+nnoremap vl vl
+nnoremap vh vh
+nnoremap v$ v$
+nnoremap vw vw
+nnoremap ve ve
+nnoremap vi vi

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+case "$1" in
+    true|false) ;;
+    *) echo "Usage: $0 { true | false }" ;;
+esac
+sudo pm-powersave $1

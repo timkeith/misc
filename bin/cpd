@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+pmd=/usr/local/pmd-bin-4.2.6
+classpath=$(echo $pmd/lib/* | tr ' ' :)
+#java -cp "$classpath" net.sourceforge.pmd.cpd.CPD --minimum-tokens 100 --files /usr/local/java/src/java
+java -cp "$classpath" net.sourceforge.pmd.cpd.CPD "$@"

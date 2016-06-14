@@ -1,0 +1,99 @@
+#!/usr/bin/env perl
+# vim:ft=perl:
+use strict;
+use warnings;
+use File::Spec::Functions qw(catfile catdir);
+use File::Basename qw(basename);
+use lib File::Basename::dirname __FILE__;
+use lib catfile($ENV{HOME}, 'bin');
+use Misc qw(dirname assert note warning error fatal internal);
+sub read_jsx($);
+
+#my $js = read_jsx($ARGV[0]);
+my $jsx_file = Misc::gettemp('', 'jsx');
+system "cat @ARGV > $jsx_file";
+my $js = `jsx $jsx_file 2>&1`;
+my $orig_js = $js;
+my $jsx = Misc::get($jsx_file);
+unlink($jsx_file);
+$js =~ s/^.*built Module.*\n//;
+$js =~ s/React\.createElement\((\w+), */$1(/gs;
+my %elems = ();
+while ($js =~ s/React\.createElement\("([^"]*)", */$1\001(/s) {
+    $elems{$1} = 1;
+}
+
+#??? why isn't this working?
+#$js =~ s/^(\s*\w+)\(null, *([^()]*)\),\n/$1$2\n/gm;
+#$js =~ s/^(\s*\w+)\(null,/$1$2\n/gm;
+
+$js =~ s/ +$//gm;
+
+# replace null with {} in attrs
+$js =~ s/\001\(null,/\001({},/g;
+
+# remove parens in inner-most elems
+$js =~ s/\001\(\{([^{}]*)\}, *([^()]*)\)(,$)?/\001 $1, $2/gm;
+$js =~ s/\001 , /\001 /g;
+
+# remove parens around multi-line elems
+#$js =~ s/^( *)(\w+\001)\((\{[{}]*\},\n(?:$1 .*\n)+$1)\)$/XXX $1$2 $3$4/gm;
+#         1   2          3
+$js =~ s/^( *)(\w+\001)\((\{[{}]*\},\n(?:\1 .*\n)+)\1\),?\n/$1$2 $3/gm;
+
+# remove braces around attrs
+$js =~ s/\001\(\{([^{}]+)\}/\001\($1/g;
+
+# remove empty attrs
+$js =~ s/\001 \{\},$/\001 \\/gm;
+$js =~ s/\001\({}, /\001(/g;
+
+# remove element marker
+$js =~ s/\001//g;
+
+# comment out render function
+$js =~ s{^  render(?:|: function)\(\) {\n((?:    .*\n|\n)*)    return \(\n(((|(     .*))\n)+)    \);\n  }\n\}\);\n}
+    {  render() {\n$1  }\n\});\n/*\n$2*/\n}gm;
+
+# add original jsx in comment
+$js .= "\n\n/*\n$jsx\n*/\n";
+
+#print $js; exit;
+
+
+my $tmp = Misc::gettemp('', 'coffee');
+my $out;
+open($out, "| js2coffee > $tmp");
+print $out $js;
+close($out);
+if ($?) {
+    print "Error status $? from js2coffee\n";
+    my $tmp2 = Misc::gettemp('', 'js');
+    Misc::put($tmp2, $js);
+    print "js is in $tmp2\n";
+    exit(1);
+}
+my $coffee = Misc::get($tmp);
+unlink($tmp);
+
+$coffee =~ s/^(\w+) = React.createClass\(\n(.*?)\n\)\n/\@$1 = classFactory\n$2\n/gms;
+$coffee =~ s/([^\s)]) *->/$1 () ->/g;
+
+# remove braces around attrs
+$coffee =~ s/(\w+)([ \(])\{ *([^{}]*?) *\}/$1$2$3/g;
+
+
+my $elems = '{' . join(',', sort keys %elems) . "} = DOM\n";
+print $elems, $coffee;
+
+#my $out = Misc::do_open('|-', 'js2coffee');
+#print $out $elems, $js;
+
+exit;
+
+sub read_jsx($) {
+    my($file) = @_;
+    my $fh = Misc::do_open('-|', "jsx $file 2&>1");
+    local $/ = undef;
+    return <$fh>;
+}

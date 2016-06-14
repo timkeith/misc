@@ -1,2 +1,3 @@
 #!/bin/bash
-find ${2-.} -name "$1" -print
+#find ${2-.} -not -path '*/\.*' -name "$1" -print
+find ${2-.} -type d -path '*/\.*' -prune -o -not -name '.*' -type f -name "$1" -print
