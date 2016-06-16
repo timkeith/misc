@@ -1,0 +1,28 @@
+
+This is normal text.
+
+  {{xml}}
+    <this should='xxx'>
+      <asdf>
+      </asdf>
+    </this>
+  {{xml}}
+
+  <<xml>>
+    <this should='xxx'>
+      <asdf>
+      </asdf>
+    </this>
+  <</xml>>
+
+  <is this xml?>
+
+  <<java>>
+    class Foo {
+      void run(IProgressMonitor m) throws IOException {}
+    }
+  <</java>>
+
+  <<vim>>
+    call TextEnableCodeSnip('xml',  '@begin=xml@',  '@end=xml@',  'SpecialComment')
+  <</vim>>
